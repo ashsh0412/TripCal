@@ -28,3 +28,21 @@ export const fetchPricesByCityCountry = async (
     throw error;
   }
 };
+
+export const fetchCities = async () => {
+  try {
+    const response = await axios.get(
+      "https://cost-of-living-and-prices.p.rapidapi.com/cities",
+      {
+        headers: {
+          "x-rapidapi-key": API_KEY,
+          "x-rapidapi-host": API_HOST,
+        },
+      }
+    );
+    return response.data.cities; // 도시 목록 반환
+  } catch (error) {
+    console.error("도시 목록을 가져오는 중 에러 발생:", error);
+    return [];
+  }
+};
