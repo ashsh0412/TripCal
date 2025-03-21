@@ -6,7 +6,6 @@ import {
   SafeAreaView,
   ScrollView,
   StatusBar,
-  Dimensions,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/types";
@@ -15,8 +14,6 @@ import CustomButton from "../components/CustomButton";
 
 // 타입 명시
 type NavigationProp = StackNavigationProp<RootStackParamList, "Home">;
-
-const { width } = Dimensions.get("window");
 
 const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -64,11 +61,17 @@ const HomeScreen = () => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.recommendedScroll}
           >
+            {/* 여행지 카드들 */}
             <DestinationCard city="도쿄" country="일본" flag="🇯🇵" />
             <DestinationCard city="방콕" country="태국" flag="🇹🇭" />
             <DestinationCard city="파리" country="프랑스" flag="🇫🇷" />
             <DestinationCard city="뉴욕" country="미국" flag="🇺🇸" />
             <DestinationCard city="시드니" country="호주" flag="🇦🇺" />
+            <DestinationCard city="로마" country="이탈리아" flag="🇮🇹" />
+            <DestinationCard city="런던" country="영국" flag="🇬🇧" />
+            <DestinationCard city="하노이" country="베트남" flag="🇻🇳" />
+            <DestinationCard city="베를린" country="독일" flag="🇩🇪" />
+            <DestinationCard city="리우" country="브라질" flag="🇧🇷" />
           </ScrollView>
         </View>
 
@@ -236,6 +239,7 @@ const styles = StyleSheet.create({
   },
   recommendedScroll: {
     paddingHorizontal: 12,
+    marginBottom: 5,
   },
   destinationCard: {
     width: 120,

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchExchangeRates } from "../utils/api";
+import { fetchExchangeRates } from "../utils/currency_api";
 
 export const useExchangeRate = (baseCurrency: string = "USD") => {
   const [rates, setRates] = useState<{ [key: string]: number } | null>(null);
