@@ -1,101 +1,577 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  ScrollView,
+  Keyboard,
+  TouchableWithoutFeedback,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import { fetchPricesByCityCountry } from "../utils/costOfLivingData";
+import LocationSearch from "../components/LocationSearch";
+import { Ionicons } from "@expo/vector-icons";
 
 const BudgetPlannerScreen = () => {
-  // 상태 변수 설정
-  const [totalBudget, setTotalBudget] = useState("");
-  const [accommodation, setAccommodation] = useState("");
-  const [food, setFood] = useState("");
-  const [transportation, setTransportation] = useState("");
-  const [totalExpense, setTotalExpense] = useState(0);
-  const [balance, setBalance] = useState<number | null>(null);
+  const [city, setCity] = useState("");
+  const [country, setCountry] = useState("");
+  const [style, setStyle] = useState("average");
+  const [days, setDays] = useState("");
+  const [people, setPeople] = useState("");
+  const [prices, setPrices] = useState<any[]>([]);
+  const [totalBudget, setTotalBudget] = useState<number | null>(null);
+  const [error, setError] = useState("");
+  const [breakdown, setBreakdown] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [currency, setCurrency] = useState<"USD" | "KRW">("USD");
+  const [exchangeRates, setExchangeRates] = useState<any>(null);
 
-  // 예산 계산 함수
+  const handleCityCountrySelect = (
+    selectedCity: string,
+    selectedCountry: string
+  ) => {
+    setCity(selectedCity);
+    setCountry(selectedCountry);
+    setPrices([]);
+    setTotalBudget(null);
+  };
+
+  const handleFetch = async () => {
+    if (!city || !country || !days || !people) {
+      setError("모든 정보를 입력해주세요.");
+      return;
+    }
+    setError("");
+    setLoading(true);
+    try {
+      const data = await fetchPricesByCityCountry(city, country);
+      setPrices(data);
+      setExchangeRates(data.exchange_rate || null); // <- 여기서 저장
+    } catch (e) {
+      setError("물가 데이터를 불러오지 못했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const convertCurrency = (amount: number): number => {
+    if (currency === "USD") return amount;
+    if (currency === "KRW") {
+      const rate = exchangeRates?.KRW ?? 1300;
+      return amount * rate;
+    }
+    return amount;
+  };
+
+  useEffect(() => {
+    if (prices.length > 0) {
+      calculateBudget();
+    }
+  }, [prices, style]);
+
   const calculateBudget = () => {
-    const total =
-      parseFloat(accommodation) + parseFloat(food) + parseFloat(transportation);
-    setTotalExpense(total);
+    const getValue = (item: any) => {
+      if (!item || !item.usd) return 0;
+      if (style === "min") return parseFloat(item.usd.min);
+      if (style === "max") return parseFloat(item.usd.max);
+      return parseFloat(item.usd.avg);
+    };
 
-    // 예산과 비교하여 잉여 금액 또는 초과 금액 계산
-    const remainingBalance = parseFloat(totalBudget) - total;
-    setBalance(remainingBalance);
+    const find = (name: string) => {
+      return prices.find((item) => item.item_name === name);
+    };
+
+    const mealUnit = getValue(find("Meal in Inexpensive Restaurant"));
+    const stayUnit =
+      getValue(find("One bedroom apartment outside of city centre")) / 30;
+    const transportUnit = getValue(find("Monthly Pass, Regular Price")) / 30;
+    const coffeeUnit = getValue(find("Cappuccino"));
+    const beerUnit = getValue(find("Domestic Beer, 0.5 liter Draught"));
+
+    const daysInt = parseInt(days);
+    const peopleInt = parseInt(people);
+
+    if (isNaN(daysInt) || isNaN(peopleInt) || daysInt <= 0 || peopleInt <= 0) {
+      setBreakdown([]);
+      setTotalBudget(null);
+      return;
+    }
+
+    const dailyDetails = Array.from({ length: daysInt }).map((_, index) => {
+      return {
+        day: index + 1,
+        meal: mealUnit * 2,
+        transport: transportUnit,
+        coffee: coffeeUnit,
+        beer: beerUnit,
+        stay: stayUnit,
+        total: mealUnit * 2 + transportUnit + coffeeUnit + beerUnit + stayUnit,
+      };
+    });
+
+    const total =
+      dailyDetails.reduce((sum, day) => sum + day.total, 0) * peopleInt;
+    setTotalBudget(Math.round(total));
+    setBreakdown(dailyDetails);
+  };
+
+  const renderStyleLabel = () => {
+    if (style === "min") return "(저렴한 스타일)";
+    if (style === "max") return "(럭셔리 스타일)";
+    return "(일반 스타일)";
+  };
+
+  const getItemIcon = (itemType: string) => {
+    switch (itemType) {
+      case "stay":
+        return "bed-outline";
+      case "meal":
+        return "restaurant-outline";
+      case "transport":
+        return "bus-outline";
+      case "coffee":
+        return "cafe-outline";
+      case "beer":
+        return "beer-outline";
+      default:
+        return "wallet-outline";
+    }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>여행 예산 계산기</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.contentContainer}>
+          <Text style={styles.title}>여행 예산 계산기</Text>
 
-      {/* 예산 입력 */}
-      <TextInput
-        style={styles.input}
-        placeholder="전체 예산을 입력하세요"
-        keyboardType="numeric"
-        value={totalBudget}
-        onChangeText={setTotalBudget}
-      />
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>기본 정보</Text>
 
-      {/* 각 항목별 예산 입력 */}
-      <TextInput
-        style={styles.input}
-        placeholder="숙박비"
-        keyboardType="numeric"
-        value={accommodation}
-        onChangeText={setAccommodation}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="식비"
-        keyboardType="numeric"
-        value={food}
-        onChangeText={setFood}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="교통비"
-        keyboardType="numeric"
-        value={transportation}
-        onChangeText={setTransportation}
-      />
+            <View style={{ width: "100%", marginBottom: 14 }}>
+              <LocationSearch
+                onCitySelect={handleCityCountrySelect}
+                initialCity={city}
+                initialCountry={country}
+              />
+            </View>
 
-      {/* 예산 계산 버튼 */}
-      <Button title="예산 계산" onPress={calculateBudget} />
+            <View style={styles.inputContainer}>
+              <Ionicons
+                name="calendar-outline"
+                size={22}
+                color="#666"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="여행 일수"
+                keyboardType="numeric"
+                value={days}
+                onChangeText={setDays}
+              />
+            </View>
 
-      {/* 결과 출력 */}
-      <Text style={styles.result}>총 지출: {totalExpense} 원</Text>
-      {balance !== null && (
-        <Text style={styles.result}>
-          {balance >= 0
-            ? `남은 예산: ${balance} 원`
-            : `예산 초과: ${Math.abs(balance)} 원`}
-        </Text>
-      )}
-    </View>
+            <View style={styles.inputContainer}>
+              <Ionicons
+                name="people-outline"
+                size={22}
+                color="#666"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="인원 수"
+                keyboardType="numeric"
+                value={people}
+                onChangeText={setPeople}
+              />
+            </View>
+
+            <Text style={styles.inputLabel}>여행 스타일</Text>
+            <View style={styles.styleSelector}>
+              {["min", "average", "max"].map((option) => (
+                <TouchableOpacity
+                  key={option}
+                  style={[
+                    styles.styleButton,
+                    style === option && styles.styleButtonSelected,
+                  ]}
+                  onPress={() => setStyle(option)}
+                >
+                  <Ionicons
+                    name={
+                      option === "min"
+                        ? "wallet-outline"
+                        : option === "max"
+                        ? "diamond-outline"
+                        : "card-outline"
+                    }
+                    size={18}
+                    color={style === option ? "white" : "#007AFF"}
+                  />
+                  <Text
+                    style={[
+                      styles.styleButtonText,
+                      style === option && styles.styleButtonTextSelected,
+                    ]}
+                  >
+                    {option === "min"
+                      ? "저렴"
+                      : option === "average"
+                      ? "일반"
+                      : "럭셔리"}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={styles.inputLabel}>표시 통화</Text>
+            <View style={styles.styleSelector}>
+              {["USD", "KRW"].map((cur) => (
+                <TouchableOpacity
+                  key={cur}
+                  style={[
+                    styles.styleButton,
+                    currency === cur && styles.styleButtonSelected,
+                  ]}
+                  onPress={() => setCurrency(cur as "USD" | "KRW")}
+                >
+                  <Ionicons
+                    name="cash-outline"
+                    size={18}
+                    color={currency === cur ? "white" : "#007AFF"}
+                  />
+                  <Text
+                    style={[
+                      styles.styleButtonText,
+                      currency === cur && styles.styleButtonTextSelected,
+                    ]}
+                  >
+                    {cur === "USD" ? "달러(USD)" : "원화(KRW)"}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              style={styles.calculateButton}
+              onPress={handleFetch}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="white" size="small" />
+              ) : (
+                <>
+                  <Ionicons
+                    name="calculator-outline"
+                    size={20}
+                    color="white"
+                    style={styles.buttonIcon}
+                  />
+                  <Text style={styles.calculateButtonText}>예산 계산하기</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          {error ? (
+            <View style={styles.errorContainer}>
+              <Ionicons name="alert-circle" size={20} color="white" />
+              <Text style={styles.error}>{error}</Text>
+            </View>
+          ) : null}
+
+          {totalBudget !== null && breakdown.length > 0 && (
+            <View style={styles.resultCard}>
+              <Text style={styles.resultTitle}>여행 예산 결과</Text>
+              <View style={styles.totalContainer}>
+                <Text style={styles.totalLabel}>총 예상 경비</Text>
+                <Text style={styles.totalAmount}>
+                  {currency === "KRW" ? "₩" : "$"}
+                  {convertCurrency(totalBudget).toLocaleString(undefined, {
+                    maximumFractionDigits: 0,
+                  })}
+                </Text>
+                <Text style={styles.styleLabel}>{renderStyleLabel()}</Text>
+              </View>
+
+              <View style={styles.divider} />
+              <Text style={styles.breakdownTitle}>상세 내역</Text>
+              {["stay", "meal", "transport", "coffee", "beer"].map((item) => {
+                const firstDay = breakdown[0];
+                if (!firstDay) return null;
+
+                const koreanName = {
+                  stay: "숙박",
+                  meal: "식비",
+                  transport: "교통",
+                  coffee: "카페",
+                  beer: "주류",
+                }[item];
+
+                const amount = (
+                  firstDay[item] *
+                  breakdown.length *
+                  parseInt(people)
+                ).toFixed(2);
+
+                const amountDisplay =
+                  currency === "USD"
+                    ? `$${amount}`
+                    : `${(parseFloat(amount) * 1300).toLocaleString()} KRW`;
+
+                const percentage = (
+                  (parseFloat(amount) / totalBudget) *
+                  100
+                ).toFixed(1);
+
+                return (
+                  <View key={item} style={styles.breakdownRow}>
+                    <View style={styles.breakdownLeft}>
+                      <View style={styles.iconContainer}>
+                        <Ionicons
+                          name={getItemIcon(item)}
+                          size={18}
+                          color="#007AFF"
+                        />
+                      </View>
+                      <Text style={styles.breakdownLabel}>{koreanName}</Text>
+                    </View>
+                    <View style={styles.breakdownRight}>
+                      <Text style={styles.breakdownAmount}>
+                        {amountDisplay}
+                      </Text>
+                      <Text style={styles.breakdownPercentage}>
+                        {percentage}%
+                      </Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          )}
+        </View>
+      </ScrollView>
+    </TouchableWithoutFeedback>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "center",
+    flexGrow: 1,
+    paddingVertical: 30,
+  },
+  contentContainer: {
+    padding: 16,
     alignItems: "center",
-    padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
-    marginBottom: 20,
+    textAlign: "center",
+    marginTop: 40,
+    marginBottom: 10,
+  },
+
+  card: {
+    backgroundColor: "white",
+    borderRadius: 16,
+    padding: 20,
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    marginBottom: 16,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 16,
+    color: "#333",
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    backgroundColor: "#f9f9f9",
+  },
+  inputIcon: {
+    marginRight: 10,
   },
   input: {
-    width: "100%",
-    padding: 20,
-    marginVertical: 10,
-    borderWidth: 1,
-    borderRadius: 5,
-    borderColor: "#ccc",
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 16,
   },
-  result: {
-    marginTop: 20,
+  inputLabel: {
+    alignSelf: "flex-start",
+    marginBottom: 10,
+    marginTop: 8,
+    fontWeight: "600",
+    fontSize: 15,
+    color: "#444",
+  },
+  styleSelector: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  styleButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#007AFF",
+    backgroundColor: "white",
+    flex: 1,
+    marginHorizontal: 4,
+    justifyContent: "center",
+  },
+  styleButtonSelected: {
+    backgroundColor: "#007AFF",
+  },
+  styleButtonText: {
+    color: "#007AFF",
+    fontWeight: "600",
+    marginLeft: 5,
+    fontSize: 14,
+  },
+  styleButtonTextSelected: {
+    color: "white",
+  },
+  calculateButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#007AFF",
+    paddingVertical: 14,
+    borderRadius: 12,
+    width: "100%",
+  },
+  calculateButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  buttonIcon: {
+    marginRight: 8,
+  },
+  errorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#ff3b30",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginVertical: 10,
+  },
+  error: {
+    color: "white",
+    marginLeft: 8,
+    fontWeight: "500",
+  },
+  resultCard: {
+    backgroundColor: "white",
+    borderRadius: 16,
+    padding: 20,
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  resultTitle: {
     fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 16,
+    color: "#333",
+  },
+  totalContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  totalLabel: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 5,
+  },
+  totalAmount: {
+    fontSize: 36,
+    fontWeight: "bold",
+    color: "#007AFF",
+  },
+  styleLabel: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 5,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#eee",
+    marginVertical: 16,
+    width: "100%",
+  },
+  breakdownTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 12,
+    color: "#333",
+  },
+  breakdownRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  breakdownLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#f0f7ff",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  breakdownLabel: {
+    fontSize: 15,
+    color: "#444",
+  },
+  breakdownRight: {
+    alignItems: "flex-end",
+  },
+  breakdownAmount: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#333",
+  },
+  breakdownPercentage: {
+    fontSize: 12,
+    color: "#888",
+  },
+  breakdownTotal: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  breakdownTotalAmount: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#007AFF",
   },
 });
 

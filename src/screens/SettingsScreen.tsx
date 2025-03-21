@@ -27,7 +27,7 @@ const termsOfService = `
 4. 앱 내 오류나 제안 사항은 피드백 메뉴를 통해 전달해 주시기 바랍니다.
 5. 본 약관은 사전 공지 없이 변경될 수 있으며, 변경 시 앱 내에 공지됩니다.
 
-문의: support@yourapp.com
+문의: ashsh0412@gmail.com
 `;
 
 const SettingsScreen = () => {
@@ -42,7 +42,7 @@ const SettingsScreen = () => {
   };
 
   const handleFeedbackPress = () => {
-    Alert.alert("피드백", "이메일: support@yourapp.com");
+    Alert.alert("피드백", "이메일: ashsh0412@gmail.com");
   };
 
   const handleTermsPress = () => {

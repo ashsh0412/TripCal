@@ -11,7 +11,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/types";
 import { useNavigation } from "@react-navigation/native";
 import CustomButton from "../components/CustomButton";
-import TipCard from "../components/Tipcard";
+import TipCard from "../components/TipCard";
 import DestinationCard from "../components/DestinationCard";
 
 // 타입 명시
