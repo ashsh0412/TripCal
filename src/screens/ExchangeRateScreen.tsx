@@ -56,8 +56,6 @@ const ExchangeRateScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>환율 비교</Text>
-
         <TextInput
           style={styles.searchInput}
           placeholder="통화 코드 또는 국가 이름 검색"
