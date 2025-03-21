@@ -27,6 +27,8 @@ const BudgetPlannerScreen = () => {
   const [loading, setLoading] = useState(false);
   const [currency, setCurrency] = useState<"USD" | "KRW">("USD");
   const [exchangeRates, setExchangeRates] = useState<any>(null);
+  const [shoppingTotal, setShoppingTotal] = useState(0);
+  const [shoppingItems, setShoppingItems] = useState<string[]>([]);
 
   const handleCityCountrySelect = (
     selectedCity: string,
@@ -48,7 +50,7 @@ const BudgetPlannerScreen = () => {
     try {
       const data = await fetchPricesByCityCountry(city, country);
       setPrices(data);
-      setExchangeRates(data.exchange_rate || null); // <- 여기서 저장
+      setExchangeRates(data.exchange_rate || null);
     } catch (e) {
       setError("물가 데이터를 불러오지 못했습니다.");
     } finally {
@@ -74,46 +76,94 @@ const BudgetPlannerScreen = () => {
   const calculateBudget = () => {
     const getValue = (item: any) => {
       if (!item || !item.usd) return 0;
-      if (style === "min") return parseFloat(item.usd.min);
-      if (style === "max") return parseFloat(item.usd.max);
       return parseFloat(item.usd.avg);
     };
 
-    const find = (name: string) => {
-      return prices.find((item) => item.item_name === name);
-    };
-
-    const mealUnit = getValue(find("Meal in Inexpensive Restaurant"));
-    const stayUnit =
-      getValue(find("One bedroom apartment outside of city centre")) / 30;
-    const transportUnit = getValue(find("Monthly Pass, Regular Price")) / 30;
-    const coffeeUnit = getValue(find("Cappuccino"));
-    const beerUnit = getValue(find("Domestic Beer, 0.5 liter Draught"));
+    const find = (name: string) =>
+      prices.find((item) => item.item_name === name);
 
     const daysInt = parseInt(days);
     const peopleInt = parseInt(people);
-
     if (isNaN(daysInt) || isNaN(peopleInt) || daysInt <= 0 || peopleInt <= 0) {
       setBreakdown([]);
       setTotalBudget(null);
       return;
     }
 
-    const dailyDetails = Array.from({ length: daysInt }).map((_, index) => {
-      return {
-        day: index + 1,
-        meal: mealUnit * 2,
-        transport: transportUnit,
-        coffee: coffeeUnit,
-        beer: beerUnit,
-        stay: stayUnit,
-        total: mealUnit * 2 + transportUnit + coffeeUnit + beerUnit + stayUnit,
-      };
-    });
+    let mealUnit = 0,
+      stayUnit = 0,
+      transportUnit = 0,
+      coffeeUnit = 0,
+      beerUnit = 0;
+    let items: string[] = [];
 
-    const total =
+    if (style === "min") {
+      mealUnit = getValue(find("Meal in Inexpensive Restaurant")) * 2;
+      stayUnit = Math.round(
+        (getValue(find("One bedroom apartment outside of city centre")) / 30) *
+          1.5 // 1.5 평 기준 월세
+      );
+      transportUnit = getValue(find("One-way Ticket, Local Transport")) * 4;
+      coffeeUnit = 0;
+      beerUnit = 0;
+      items = [];
+    } else if (style === "average") {
+      mealUnit =
+        (getValue(
+          find("Meal for 2 People, Mid-range Restaurant, Three-course")
+        ) /
+          2) *
+        2;
+      stayUnit = Math.round(
+        (getValue(find("One bedroom apartment in city centre")) / 30) * 2.5 // 2.5 평 기준 월세
+      );
+      transportUnit = getValue(find("One-way Ticket, Local Transport")) * 6;
+      coffeeUnit = getValue(find("Cappuccino")) * 1;
+      beerUnit = getValue(find("Domestic Beer, 0.5 liter Draught")) * 1;
+      items = ["Summer Dress in a Chain Store Like George, H&M, Zara, etc."];
+    } else if (style === "max") {
+      mealUnit =
+        (getValue(
+          find("Meal for 2 People, Mid-range Restaurant, Three-course")
+        ) /
+          2) *
+        6;
+      stayUnit = Math.round(
+        (getValue(find("Three bedroom apartment in city centre")) / 30) * 3 // 2.5 평 기준 월세
+      );
+      transportUnit =
+        getValue(find("Taxi, price for 1 km, Normal Tariff")) * 10 +
+        getValue(find("Taxi Start, Normal Tariff"));
+      coffeeUnit = getValue(find("Cappuccino")) * 2;
+      beerUnit = getValue(find("Bottle of Wine, Mid-Range Price"));
+      items = [
+        "Pair of Leather Business Shoes",
+        "Summer Dress in a Chain Store Like George, H&M, Zara, etc.",
+      ];
+    }
+
+    setShoppingItems(items);
+
+    const dailyDetails = Array.from({ length: daysInt }).map((_, index) => ({
+      day: index + 1,
+      meal: mealUnit,
+      stay: stayUnit,
+      transport: transportUnit,
+      coffee: coffeeUnit,
+      beer: beerUnit,
+      total: mealUnit + stayUnit + transportUnit + coffeeUnit + beerUnit,
+    }));
+
+    const baseTotal =
       dailyDetails.reduce((sum, day) => sum + day.total, 0) * peopleInt;
-    setTotalBudget(Math.round(total));
+
+    const shoppingCost =
+      items.reduce((sum, itemName) => {
+        return sum + getValue(find(itemName));
+      }, 0) * peopleInt;
+
+    setShoppingTotal(shoppingCost);
+    setTotalBudget(Math.round(baseTotal + shoppingCost));
     setBreakdown(dailyDetails);
   };
 
@@ -123,7 +173,7 @@ const BudgetPlannerScreen = () => {
     return "(일반 스타일)";
   };
 
-  const getItemIcon = (itemType: string) => {
+  const getItemIcon = (itemType: string): keyof typeof Ionicons.glyphMap => {
     switch (itemType) {
       case "stay":
         return "bed-outline";
@@ -135,6 +185,8 @@ const BudgetPlannerScreen = () => {
         return "cafe-outline";
       case "beer":
         return "beer-outline";
+      case "shopping":
+        return "shirt-outline";
       default:
         return "wallet-outline";
     }
@@ -295,61 +347,72 @@ const BudgetPlannerScreen = () => {
                   })}
                 </Text>
                 <Text style={styles.styleLabel}>{renderStyleLabel()}</Text>
+                <Text style={styles.noticeText}>
+                  ※ 본 계산은 참고용이며 실제 비용은 달라질 수 있습니다.
+                </Text>
               </View>
 
               <View style={styles.divider} />
               <Text style={styles.breakdownTitle}>상세 내역</Text>
-              {["stay", "meal", "transport", "coffee", "beer"].map((item) => {
-                const firstDay = breakdown[0];
-                if (!firstDay) return null;
+              {["stay", "meal", "transport", "coffee", "beer", "shopping"].map(
+                (item) => {
+                  const firstDay = breakdown[0];
+                  if (!firstDay) return null;
 
-                const koreanName = {
-                  stay: "숙박",
-                  meal: "식비",
-                  transport: "교통",
-                  coffee: "카페",
-                  beer: "주류",
-                }[item];
+                  let amount = 0;
+                  let koreanName = "";
+                  let iconName = getItemIcon(item);
 
-                const amount = (
-                  firstDay[item] *
-                  breakdown.length *
-                  parseInt(people)
-                ).toFixed(2);
+                  if (item === "shopping") {
+                    koreanName = "쇼핑";
+                    amount = shoppingTotal;
+                  } else {
+                    koreanName =
+                      {
+                        stay: "숙박",
+                        meal: "식비 (하루 2끼 기준)",
+                        transport: "교통",
+                        coffee: "카페",
+                        beer: "주류",
+                      }[item] || item;
 
-                const amountDisplay =
-                  currency === "USD"
-                    ? `$${amount}`
-                    : `${(parseFloat(amount) * 1300).toLocaleString()} KRW`;
+                    amount =
+                      firstDay[item] * breakdown.length * parseInt(people);
+                  }
 
-                const percentage = (
-                  (parseFloat(amount) / totalBudget) *
-                  100
-                ).toFixed(1);
+                  const amountDisplay =
+                    currency === "USD"
+                      ? `$${amount.toFixed(2)}`
+                      : `${(
+                          amount * (exchangeRates?.KRW ?? 1300)
+                        ).toLocaleString()} KRW`;
 
-                return (
-                  <View key={item} style={styles.breakdownRow}>
-                    <View style={styles.breakdownLeft}>
-                      <View style={styles.iconContainer}>
-                        <Ionicons
-                          name={getItemIcon(item)}
-                          size={18}
-                          color="#007AFF"
-                        />
+                  const percentage = ((amount / totalBudget) * 100).toFixed(1);
+
+                  return (
+                    <View key={item} style={styles.breakdownRow}>
+                      <View style={styles.breakdownLeft}>
+                        <View style={styles.iconContainer}>
+                          <Ionicons
+                            name={iconName as keyof typeof Ionicons.glyphMap}
+                            size={18}
+                            color="#007AFF"
+                          />
+                        </View>
+                        <Text style={styles.breakdownLabel}>{koreanName}</Text>
                       </View>
-                      <Text style={styles.breakdownLabel}>{koreanName}</Text>
+                      <View style={styles.breakdownRight}>
+                        <Text style={styles.breakdownAmount}>
+                          {amountDisplay}
+                        </Text>
+                        <Text style={styles.breakdownPercentage}>
+                          {percentage}%
+                        </Text>
+                      </View>
                     </View>
-                    <View style={styles.breakdownRight}>
-                      <Text style={styles.breakdownAmount}>
-                        {amountDisplay}
-                      </Text>
-                      <Text style={styles.breakdownPercentage}>
-                        {percentage}%
-                      </Text>
-                    </View>
-                  </View>
-                );
-              })}
+                  );
+                }
+              )}
             </View>
           )}
         </View>
@@ -414,7 +477,6 @@ const styles = StyleSheet.create({
   inputLabel: {
     alignSelf: "flex-start",
     marginBottom: 10,
-    marginTop: 8,
     fontWeight: "600",
     fontSize: 15,
     color: "#444",
@@ -572,6 +634,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#007AFF",
+  },
+  noticeText: {
+    fontSize: 12,
+    color: "red",
+    marginTop: 10,
+    textAlign: "center",
   },
 });
 
