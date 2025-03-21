@@ -11,6 +11,8 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/types";
 import { useNavigation } from "@react-navigation/native";
 import CustomButton from "../components/CustomButton";
+import TipCard from "../components/Tipcard";
+import DestinationCard from "../components/DestinationCard";
 
 // 타입 명시
 type NavigationProp = StackNavigationProp<RootStackParamList, "Home">;
@@ -55,7 +57,7 @@ const HomeScreen = () => {
 
         {/* 추천 여행지 섹션 */}
         <View style={styles.recommendedSection}>
-          <Text style={styles.sectionTitle}>인기 여행지 물가 정보</Text>
+          <Text style={styles.sectionTitle}>추천 인기 여행지</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -75,13 +77,8 @@ const HomeScreen = () => {
           </ScrollView>
         </View>
 
-        {/* 팁 섹션 */}
-        <View style={styles.tipContainer}>
-          <Text style={styles.tipTitle}>💡 여행 팁</Text>
-          <Text style={styles.tipText}>
-            현지 ATM 사용 시 대부분 현지 통화 인출이 환전소보다 저렴합니다.
-          </Text>
-        </View>
+        {/* 팁 섹션 - TipCard 컴포넌트 사용 */}
+        <TipCard />
       </ScrollView>
     </SafeAreaView>
   );
@@ -115,26 +112,6 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
       style={styles.cardButton}
       textStyle={styles.cardButtonText}
     />
-  </View>
-);
-
-// 여행지 카드 컴포넌트
-// Define the props type for DestinationCard
-type DestinationCardProps = {
-  city: string;
-  country: string;
-  flag: string;
-};
-
-const DestinationCard: React.FC<DestinationCardProps> = ({
-  city,
-  country,
-  flag,
-}) => (
-  <View style={styles.destinationCard}>
-    <Text style={styles.destinationFlag}>{flag}</Text>
-    <Text style={styles.destinationCity}>{city}</Text>
-    <Text style={styles.destinationCountry}>{country}</Text>
   </View>
 );
 
@@ -240,58 +217,6 @@ const styles = StyleSheet.create({
   recommendedScroll: {
     paddingHorizontal: 12,
     marginBottom: 5,
-  },
-  destinationCard: {
-    width: 120,
-    height: 160,
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    marginHorizontal: 8,
-    padding: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 3,
-  },
-  destinationFlag: {
-    fontSize: 40,
-    marginBottom: 10,
-  },
-  destinationCity: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-    textAlign: "center",
-  },
-  destinationCountry: {
-    fontSize: 14,
-    color: "#666",
-    textAlign: "center",
-  },
-  tipContainer: {
-    backgroundColor: "#E1F5FE",
-    margin: 20,
-    padding: 16,
-    borderRadius: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: "#4481EB",
-  },
-  tipTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 6,
-    color: "#333",
-  },
-  tipText: {
-    fontSize: 14,
-    color: "#555",
-    lineHeight: 20,
   },
 });
 

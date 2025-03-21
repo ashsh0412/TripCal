@@ -1,7 +1,5 @@
 import axios from "axios";
-
-const API_KEY = "dbab5a7906msh0f25a8d66401762p1a0e1fjsncd442d25c6fd";
-const API_HOST = "cost-of-living-and-prices.p.rapidapi.com";
+import { API_KEY, API_HOST } from "../config/env";
 
 export const fetchPricesByCityCountry = async (
   city: string,

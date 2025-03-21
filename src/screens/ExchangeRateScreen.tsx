@@ -10,7 +10,7 @@ import {
   SafeAreaView,
   TextInput,
 } from "react-native";
-import { useExchangeRate } from "../hooks/useExchangeRate";
+import { useExchangeRate } from "../utils/useExchangeRate";
 import Card from "../components/Card";
 import { getCurrencyData } from "../utils/currencyData";
 

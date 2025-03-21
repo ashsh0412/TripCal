@@ -111,7 +111,7 @@ const CostOfLivingScreen = () => {
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
-          placeholder="도시 입력"
+          placeholder="도시 입력 (영어로 입력해 주세요 Ex: Seoul)"
           value={city}
           onChangeText={handleCityChange}
         />
@@ -145,7 +145,7 @@ const CostOfLivingScreen = () => {
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
-          placeholder="나라 입력"
+          placeholder="나라 입력 (영어로 입력해 주세요 Ex: South Korea)"
           value={country}
           onChangeText={handleCountryChange}
         />
@@ -175,7 +175,7 @@ const CostOfLivingScreen = () => {
         )}
       </View>
 
-      <Button title="물가 정보 검색" onPress={handleSearch} />
+      <Button title="물가 정보 검색 🔎" onPress={handleSearch} />
 
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -212,6 +212,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 20,
+    marginTop: 35,
   },
   inputContainer: {
     position: "relative",

@@ -122,9 +122,10 @@ const styles = StyleSheet.create({
     paddingTop: 32,
   },
   header: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
     marginBottom: 16,
+    marginTop: 40,
   },
   sectionTitle: {
     fontSize: 14,
