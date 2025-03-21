@@ -9,7 +9,7 @@ import CustomButton from "../components/CustomButton";
 type NavigationProp = StackNavigationProp<RootStackParamList, "Home">;
 
 const HomeScreen = () => {
-  const navigation = useNavigation<NavigationProp>(); // 👈 타입 적용
+  const navigation = useNavigation<NavigationProp>();
 
   return (
     <View style={styles.container}>

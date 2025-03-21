@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// src/screens/ExchangeRateScreen.tsx
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,40 +8,62 @@ import {
   StyleSheet,
   Button,
   SafeAreaView,
+  TextInput,
 } from "react-native";
 import { useExchangeRate } from "../hooks/useExchangeRate";
 import Card from "../components/Card";
-import CurrencySelector from "../components/CurrencySelector";
+import { getCurrencyData } from "../utils/currencyData";
 
 const ITEMS_PER_PAGE = 10;
 
 const ExchangeRateScreen = () => {
-  const [baseCurrency, setBaseCurrency] = useState("USD");
+  const baseCurrency = "KRW"; // 기준 통화 고정
   const { rates, loading, error } = useExchangeRate(baseCurrency);
   const [currentPage, setCurrentPage] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currencyInfoMap, setCurrencyInfoMap] = useState<{
+    [key: string]: { countryName: string };
+  }>({});
+
+  useEffect(() => {
+    const fetchCurrencyInfo = async () => {
+      const data = await getCurrencyData();
+      setCurrencyInfoMap(data);
+    };
+    fetchCurrencyInfo();
+  }, []);
 
   const rateKeys = rates ? Object.keys(rates) : [];
   const totalPages = Math.ceil(rateKeys.length / ITEMS_PER_PAGE);
-  const paginatedRates = rateKeys.slice(
-    currentPage * ITEMS_PER_PAGE,
-    (currentPage + 1) * ITEMS_PER_PAGE
-  );
+
+  const filteredRates = rateKeys.filter((currency) => {
+    const lowerQuery = searchQuery.toLowerCase();
+    const currencyName =
+      currencyInfoMap[currency]?.countryName.toLowerCase() || "";
+    return (
+      currency.toLowerCase().includes(lowerQuery) ||
+      currencyName.includes(lowerQuery)
+    );
+  });
+
+  const paginatedRates = searchQuery
+    ? filteredRates
+    : filteredRates.slice(
+        currentPage * ITEMS_PER_PAGE,
+        (currentPage + 1) * ITEMS_PER_PAGE
+      );
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>환율 비교</Text>
 
-        {/* 기준 통화 선택 - 위치 조정 */}
-        <View style={styles.selectorContainer}>
-          <CurrencySelector
-            selectedCurrency={baseCurrency}
-            onChange={(currency) => {
-              setBaseCurrency(currency);
-              setCurrentPage(0);
-            }}
-          />
-        </View>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="통화 코드 또는 국가 이름 검색"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
       </View>
 
       {loading && (
@@ -58,30 +81,31 @@ const ExchangeRateScreen = () => {
         {paginatedRates.map((currency) => (
           <Card
             key={currency}
-            title={currency}
-            value={rates ? rates[currency].toFixed(2) : "N/A"}
+            currencyCode={currency}
+            exchangeRate={rates ? 1 / rates[currency] : 0}
           />
         ))}
       </ScrollView>
 
-      {/* 페이지네이션 컨트롤 */}
-      <View style={styles.pagination}>
-        <Button
-          title="이전"
-          onPress={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
-          disabled={currentPage === 0}
-        />
-        <Text style={styles.pageInfo}>{`${
-          currentPage + 1
-        } / ${totalPages}`}</Text>
-        <Button
-          title="다음"
-          onPress={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))
-          }
-          disabled={currentPage >= totalPages - 1}
-        />
-      </View>
+      {!searchQuery && (
+        <View style={styles.pagination}>
+          <Button
+            title="이전"
+            onPress={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
+            disabled={currentPage === 0}
+          />
+          <Text style={styles.pageInfo}>{`${
+            currentPage + 1
+          } / ${totalPages}`}</Text>
+          <Button
+            title="다음"
+            onPress={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))
+            }
+            disabled={currentPage >= totalPages - 1}
+          />
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -103,9 +127,13 @@ const styles = StyleSheet.create({
     color: "#007AFF",
     textAlign: "center",
   },
-  selectorContainer: {
-    marginBottom: 16,
-    width: "100%",
+  searchInput: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    fontSize: 16,
   },
   loadingContainer: {
     padding: 20,
