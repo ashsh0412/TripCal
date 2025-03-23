@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "money-map",
-    "slug": "money-map",
+    "name": "PlanIt",
+    "slug": "planit",
+    "platforms": ["ios", "android", "web"],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
