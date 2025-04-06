@@ -29,12 +29,12 @@ const HomeScreen = () => {
       >
         {/* 기능 카드 섹션 */}
         <View style={styles.cardsContainer}>
-          <FeatureCard
+          {/* <FeatureCard
             title="환율 비교하기"
             icon="💱"
             description="실시간 환율 정보와 환전 계산기"
             onPress={() => navigation.navigate("ExchangeRate")}
-          />
+          /> */}
           <FeatureCard
             title="물가 비교하기"
             icon="🛒"
