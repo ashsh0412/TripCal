@@ -1,22 +1,24 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
 type DestinationCardProps = {
   city: string;
   country: string;
   flag: string;
+  onPress: () => void;
 };
 
 const DestinationCard: React.FC<DestinationCardProps> = ({
   city,
   country,
   flag,
+  onPress,
 }) => (
-  <View style={styles.destinationCard}>
+  <TouchableOpacity style={styles.destinationCard} onPress={onPress}>
     <Text style={styles.destinationFlag}>{flag}</Text>
     <Text style={styles.destinationCity}>{city}</Text>
     <Text style={styles.destinationCountry}>{country}</Text>
-  </View>
+  </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({

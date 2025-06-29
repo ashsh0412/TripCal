@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -13,12 +13,64 @@ import { useNavigation } from "@react-navigation/native";
 import CustomButton from "../components/CustomButton";
 import TipCard from "../components/TipCard";
 import DestinationCard from "../components/DestinationCard";
+import {
+  fetchEmbassyData,
+  fetchOverviewData,
+  fetchEnvironmentalData,
+} from "../utils/destinationCard_api";
+import CountryInfoModal from "../components/CountryInfoModal";
 
 // 타입 명시
 type NavigationProp = StackNavigationProp<RootStackParamList, "Home">;
 
+const countryToISO: { [key: string]: string } = {
+  일본: "JP",
+  태국: "TH",
+  프랑스: "FR",
+  미국: "US",
+  호주: "AU",
+  이탈리아: "IT",
+  영국: "GB",
+  베트남: "VN",
+  독일: "DE",
+  브라질: "BR",
+};
+
+const recommendedDestinations = [
+  { city: "도쿄", country: "일본", flag: "🇯🇵" },
+  { city: "방콕", country: "태국", flag: "🇹🇭" },
+  { city: "파리", country: "프랑스", flag: "🇫🇷" },
+  { city: "뉴욕", country: "미국", flag: "🇺🇸" },
+  { city: "시드니", country: "호주", flag: "🇦🇺" },
+  { city: "로마", country: "이탈리아", flag: "🇮🇹" },
+  { city: "런던", country: "영국", flag: "🇬🇧" },
+  { city: "하노이", country: "베트남", flag: "🇻🇳" },
+  { city: "베를린", country: "독일", flag: "🇩🇪" },
+  { city: "리우", country: "브라질", flag: "🇧🇷" },
+];
+
 const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp>();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [detailData, setDetailData] = useState<any>(null);
+
+  const handleCardPress = async (country: string) => {
+    try {
+      const iso = countryToISO[country];
+      if (!iso) return;
+
+      const [embassyList, overview, environment] = await Promise.all([
+        fetchEmbassyData(country),
+        fetchOverviewData(iso),
+        fetchEnvironmentalData(iso),
+      ]);
+
+      setDetailData({ embassyList, overview, environment });
+      setModalVisible(true);
+    } catch (err) {
+      console.error("정보 불러오기 실패:", err);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -27,17 +79,10 @@ const HomeScreen = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* 기능 카드 섹션 */}
         <View style={styles.cardsContainer}>
-          {/* <FeatureCard
-            title="환율 비교하기"
-            icon="💱"
-            description="실시간 환율 정보와 환전 계산기"
-            onPress={() => navigation.navigate("ExchangeRate")}
-          /> */}
           <FeatureCard
             title="물가 비교하기"
-            icon="🛒"
+            icon="🛏️"
             description="전세계 도시별 물가 비교"
             onPress={() => navigation.navigate("CostOfLiving")}
           />
@@ -55,7 +100,6 @@ const HomeScreen = () => {
           />
         </View>
 
-        {/* 추천 여행지 섹션 */}
         <View style={styles.recommendedSection}>
           <Text style={styles.sectionTitle}>추천 인기 여행지</Text>
           <ScrollView
@@ -63,41 +107,36 @@ const HomeScreen = () => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.recommendedScroll}
           >
-            {/* 여행지 카드들 */}
-            <DestinationCard city="도쿄" country="일본" flag="🇯🇵" />
-            <DestinationCard city="방콕" country="태국" flag="🇹🇭" />
-            <DestinationCard city="파리" country="프랑스" flag="🇫🇷" />
-            <DestinationCard city="뉴욕" country="미국" flag="🇺🇸" />
-            <DestinationCard city="시드니" country="호주" flag="🇦🇺" />
-            <DestinationCard city="로마" country="이탈리아" flag="🇮🇹" />
-            <DestinationCard city="런던" country="영국" flag="🇬🇧" />
-            <DestinationCard city="하노이" country="베트남" flag="🇻🇳" />
-            <DestinationCard city="베를린" country="독일" flag="🇩🇪" />
-            <DestinationCard city="리우" country="브라질" flag="🇧🇷" />
+            {recommendedDestinations.map(({ city, country, flag }) => (
+              <DestinationCard
+                key={country}
+                city={city}
+                country={country}
+                flag={flag}
+                onPress={() => handleCardPress(country)}
+              />
+            ))}
           </ScrollView>
         </View>
 
-        {/* 팁 섹션 - TipCard 컴포넌트 사용 */}
         <TipCard />
       </ScrollView>
+
+      <CountryInfoModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        detailData={detailData}
+      />
     </SafeAreaView>
   );
 };
 
-// 기능 카드 컴포넌트
-type FeatureCardProps = {
+const FeatureCard: React.FC<{
   title: string;
   icon: string;
   description: string;
   onPress: () => void;
-};
-
-const FeatureCard: React.FC<FeatureCardProps> = ({
-  title,
-  icon,
-  description,
-  onPress,
-}) => (
+}> = ({ title, icon, description, onPress }) => (
   <View style={styles.card}>
     <View style={styles.cardContent}>
       <Text style={styles.cardIcon}>{icon}</Text>
@@ -122,39 +161,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 30,
-  },
-  header: {
-    width: "100%",
-    height: 200,
-    marginBottom: 20,
-  },
-  headerGradient: {
-    width: "100%",
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    overflow: "hidden",
-    paddingHorizontal: 20,
-  },
-  worldMapImage: {
-    width: "80%",
-    height: 80,
-    opacity: 0.6,
-    position: "absolute",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 8,
-    color: "#fff",
-    textAlign: "center",
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#fff",
-    fontWeight: "500",
   },
   cardsContainer: {
     marginTop: 20,

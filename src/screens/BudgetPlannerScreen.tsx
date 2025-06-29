@@ -98,48 +98,56 @@ const BudgetPlannerScreen = () => {
     let items: string[] = [];
 
     if (style === "min") {
-      mealUnit = getValue(find("Meal in Inexpensive Restaurant")) * 2;
+      // Budget travel style
+      mealUnit = getValue(find("Meal in Inexpensive Restaurant")) * 2; // 2 inexpensive meals per day
       stayUnit = Math.round(
         (getValue(find("One bedroom apartment outside of city centre")) / 30) *
-          1.5 // 1.5 평 기준 월세
-      );
-      transportUnit = getValue(find("One-way Ticket, Local Transport")) * 4;
-      coffeeUnit = 0;
-      beerUnit = 0;
-      items = [];
+          1.2
+      ); // Budget accommodation equivalent to a small studio
+      transportUnit = getValue(find("One-way Ticket, Local Transport")) * 2; // 2 trips per day
+      coffeeUnit = getValue(find("Water, 0.33 liter Bottle")) * 2; // Just water instead of coffee
+      beerUnit = 0; // No alcohol budget
+      items = []; // No shopping
     } else if (style === "average") {
+      // Average travel style
       mealUnit =
+        getValue(find("Meal in Inexpensive Restaurant")) * 2 +
         (getValue(
           find("Meal for 2 People, Mid-range Restaurant, Three-course")
         ) /
           2) *
-        2;
+          0.5;
+      // 2 regular meals + one mid-range meal every other day
       stayUnit = Math.round(
-        (getValue(find("One bedroom apartment in city centre")) / 30) * 2.5 // 2.5 평 기준 월세
-      );
-      transportUnit = getValue(find("One-way Ticket, Local Transport")) * 6;
-      coffeeUnit = getValue(find("Cappuccino")) * 1;
-      beerUnit = getValue(find("Domestic Beer, 0.5 liter Draught")) * 1;
-      items = ["Summer Dress in a Chain Store Like George, H&M, Zara, etc."];
+        (getValue(find("One bedroom apartment in city centre")) / 30) * 1.5
+      ); // Standard accommodation in city center
+      transportUnit = getValue(find("One-way Ticket, Local Transport")) * 4; // 4 trips per day
+      coffeeUnit = getValue(find("Cappuccino")) * 1; // 1 coffee per day
+      beerUnit = getValue(find("Domestic Beer, 0.5 liter Draught")) * 0.5; // 1 beer every other day
+      items = ["Summer Dress in a Chain Store Like George, H&M, Zara, etc."]; // Minimal shopping
     } else if (style === "max") {
+      // Luxury travel style
       mealUnit =
         (getValue(
           find("Meal for 2 People, Mid-range Restaurant, Three-course")
         ) /
           2) *
-        6;
+        3;
+      // 3 good restaurant meals per day
       stayUnit = Math.round(
-        (getValue(find("Three bedroom apartment in city centre")) / 30) * 3 // 2.5 평 기준 월세
-      );
+        (getValue(find("Three bedroom apartment in city centre")) / 30) * 1.5
+      ); // Nicer accommodation equivalent to hotel
       transportUnit =
-        getValue(find("Taxi, price for 1 km, Normal Tariff")) * 10 +
-        getValue(find("Taxi Start, Normal Tariff"));
-      coffeeUnit = getValue(find("Cappuccino")) * 2;
-      beerUnit = getValue(find("Bottle of Wine, Mid-Range Price"));
+        getValue(find("Taxi Start, Normal Tariff")) +
+        getValue(find("Taxi, price for 1 km, Normal Tariff")) * 8; // Taxi usage daily
+      coffeeUnit = getValue(find("Cappuccino")) * 2; // 2 coffees per day
+      beerUnit =
+        getValue(find("Imported Beer, 0.33 liter Bottle")) * 2 +
+        getValue(find("Bottle of Wine, Mid-Range Price")) * 0.5; // Better drinks + wine every other day
       items = [
         "Pair of Leather Business Shoes",
         "Summer Dress in a Chain Store Like George, H&M, Zara, etc.",
-      ];
+      ]; // More shopping
     }
 
     setShoppingItems(items);
