@@ -8,14 +8,28 @@ import {
   StatusBar,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../navigation/types";
 import { useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "../navigation/types";
 import CustomButton from "../components/CustomButton";
 import TipCard from "../components/TipCard";
 import DestinationCard from "../components/DestinationCard";
+import { getQuote, getQuote2 } from "../utils/fetchPublicData";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
-// 타입 명시
 type NavigationProp = StackNavigationProp<RootStackParamList, "Home">;
+
+const recommendedDestinations = [
+  { city: "도쿄", country: "일본", code: "JP", flag: "🇯🇵" },
+  { city: "방콕", country: "태국", code: "TH", flag: "🇹🇭" },
+  { city: "파리", country: "프랑스", code: "FR", flag: "🇫🇷" },
+  { city: "뉴욕", country: "미국", code: "US", flag: "🇺🇸" },
+  { city: "시드니", country: "호주", code: "AU", flag: "🇦🇺" },
+  { city: "로마", country: "이탈리아", code: "IT", flag: "🇮🇹" },
+  { city: "런던", country: "영국", code: "GB", flag: "🇬🇧" },
+  { city: "하노이", country: "베트남", code: "VN", flag: "🇻🇳" },
+  { city: "베를린", country: "독일", code: "DE", flag: "🇩🇪" },
+  { city: "리우", country: "브라질", code: "BR", flag: "🇧🇷" },
+];
 
 const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -27,17 +41,10 @@ const HomeScreen = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* 기능 카드 섹션 */}
         <View style={styles.cardsContainer}>
-          {/* <FeatureCard
-            title="환율 비교하기"
-            icon="💱"
-            description="실시간 환율 정보와 환전 계산기"
-            onPress={() => navigation.navigate("ExchangeRate")}
-          /> */}
           <FeatureCard
             title="물가 비교하기"
-            icon="🛒"
+            icon="🛏️"
             description="전세계 도시별 물가 비교"
             onPress={() => navigation.navigate("CostOfLiving")}
           />
@@ -55,7 +62,6 @@ const HomeScreen = () => {
           />
         </View>
 
-        {/* 추천 여행지 섹션 */}
         <View style={styles.recommendedSection}>
           <Text style={styles.sectionTitle}>추천 인기 여행지</Text>
           <ScrollView
@@ -63,41 +69,33 @@ const HomeScreen = () => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.recommendedScroll}
           >
-            {/* 여행지 카드들 */}
-            <DestinationCard city="도쿄" country="일본" flag="🇯🇵" />
-            <DestinationCard city="방콕" country="태국" flag="🇹🇭" />
-            <DestinationCard city="파리" country="프랑스" flag="🇫🇷" />
-            <DestinationCard city="뉴욕" country="미국" flag="🇺🇸" />
-            <DestinationCard city="시드니" country="호주" flag="🇦🇺" />
-            <DestinationCard city="로마" country="이탈리아" flag="🇮🇹" />
-            <DestinationCard city="런던" country="영국" flag="🇬🇧" />
-            <DestinationCard city="하노이" country="베트남" flag="🇻🇳" />
-            <DestinationCard city="베를린" country="독일" flag="🇩🇪" />
-            <DestinationCard city="리우" country="브라질" flag="🇧🇷" />
+            {recommendedDestinations.map(({ city, country, code, flag }) => (
+              <DestinationCard
+                key={country}
+                city={city}
+                country={country}
+                flag={flag}
+                onPress={async () => {
+                  console.log(`Selected destination: ${city}, ${country}`);
+                  await getQuote();
+                }}
+              />
+            ))}
           </ScrollView>
         </View>
 
-        {/* 팁 섹션 - TipCard 컴포넌트 사용 */}
         <TipCard />
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-// 기능 카드 컴포넌트
-type FeatureCardProps = {
+const FeatureCard: React.FC<{
   title: string;
   icon: string;
   description: string;
   onPress: () => void;
-};
-
-const FeatureCard: React.FC<FeatureCardProps> = ({
-  title,
-  icon,
-  description,
-  onPress,
-}) => (
+}> = ({ title, icon, description, onPress }) => (
   <View style={styles.card}>
     <View style={styles.cardContent}>
       <Text style={styles.cardIcon}>{icon}</Text>
@@ -122,39 +120,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 30,
-  },
-  header: {
-    width: "100%",
-    height: 200,
-    marginBottom: 20,
-  },
-  headerGradient: {
-    width: "100%",
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    overflow: "hidden",
-    paddingHorizontal: 20,
-  },
-  worldMapImage: {
-    width: "80%",
-    height: 80,
-    opacity: 0.6,
-    position: "absolute",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 8,
-    color: "#fff",
-    textAlign: "center",
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#fff",
-    fontWeight: "500",
   },
   cardsContainer: {
     marginTop: 20,
