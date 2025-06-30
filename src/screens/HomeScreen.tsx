@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -13,26 +13,31 @@ import { RootStackParamList } from "../navigation/types";
 import CustomButton from "../components/CustomButton";
 import TipCard from "../components/TipCard";
 import DestinationCard from "../components/DestinationCard";
-import { getQuote, getQuote2 } from "../utils/fetchPublicData";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 type NavigationProp = StackNavigationProp<RootStackParamList, "Home">;
 
-const recommendedDestinations = [
-  { city: "도쿄", country: "일본", code: "JP", flag: "🇯🇵" },
-  { city: "방콕", country: "태국", code: "TH", flag: "🇹🇭" },
-  { city: "파리", country: "프랑스", code: "FR", flag: "🇫🇷" },
-  { city: "뉴욕", country: "미국", code: "US", flag: "🇺🇸" },
-  { city: "시드니", country: "호주", code: "AU", flag: "🇦🇺" },
-  { city: "로마", country: "이탈리아", code: "IT", flag: "🇮🇹" },
-  { city: "런던", country: "영국", code: "GB", flag: "🇬🇧" },
-  { city: "하노이", country: "베트남", code: "VN", flag: "🇻🇳" },
-  { city: "베를린", country: "독일", code: "DE", flag: "🇩🇪" },
-  { city: "리우", country: "브라질", code: "BR", flag: "🇧🇷" },
-];
-
 const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp>();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [detailData, setDetailData] = useState<any>(null);
+
+  const handleCardPress = async (country: string) => {
+    try {
+      const iso = countryToISO[country];
+      if (!iso) return;
+
+      const [embassyList, overview, environment] = await Promise.all([
+        fetchEmbassyData(country),
+        fetchOverviewData(iso),
+        fetchEnvironmentalData(iso),
+      ]);
+
+      setDetailData({ embassyList, overview, environment });
+      setModalVisible(true);
+    } catch (err) {
+      console.error("정보 불러오기 실패:", err);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -69,23 +74,28 @@ const HomeScreen = () => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.recommendedScroll}
           >
-            {recommendedDestinations.map(({ city, country, code, flag }) => (
-              <DestinationCard
-                key={country}
-                city={city}
-                country={country}
-                flag={flag}
-                onPress={async () => {
-                  console.log(`Selected destination: ${city}, ${country}`);
-                  await getQuote();
-                }}
-              />
-            ))}
+            {/* 여행지 카드들 */}
+            <DestinationCard city="도쿄" country="일본" flag="🇯🇵" />
+            <DestinationCard city="방콕" country="태국" flag="🇹🇭" />
+            <DestinationCard city="파리" country="프랑스" flag="🇫🇷" />
+            <DestinationCard city="뉴욕" country="미국" flag="🇺🇸" />
+            <DestinationCard city="시드니" country="호주" flag="🇦🇺" />
+            <DestinationCard city="로마" country="이탈리아" flag="🇮🇹" />
+            <DestinationCard city="런던" country="영국" flag="🇬🇧" />
+            <DestinationCard city="하노이" country="베트남" flag="🇻🇳" />
+            <DestinationCard city="베를린" country="독일" flag="🇩🇪" />
+            <DestinationCard city="리우" country="브라질" flag="🇧🇷" />
           </ScrollView>
         </View>
 
         <TipCard />
       </ScrollView>
+
+      <CountryInfoModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        detailData={detailData}
+      />
     </SafeAreaView>
   );
 };
