@@ -7,15 +7,7 @@ import {
   Alert,
   StyleSheet,
 } from "react-native";
-import {
-  ChevronRight,
-  Info,
-  Mail,
-  Landmark,
-  FileText,
-  Globe,
-  User,
-} from "lucide-react-native";
+import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 const termsOfService = `
@@ -61,18 +53,18 @@ const SettingsScreen = () => {
         onPress={handleBaseCurrencyPress}
       >
         <View style={styles.leftSection}>
-          <Landmark size={20} />
+          <FontAwesome name="university" size={20} />
           <Text style={styles.itemText}>기준 통화 설정</Text>
         </View>
-        <ChevronRight size={20} />
+        <FontAwesome name="chevron-right" size={20} />
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.itemRow} onPress={handleLanguagePress}>
         <View style={styles.leftSection}>
-          <Globe size={20} />
+          <FontAwesome name="globe" size={20} />
           <Text style={styles.itemText}>언어 설정</Text>
         </View>
-        <ChevronRight size={20} />
+        <FontAwesome name="chevron-right" size={20} />
       </TouchableOpacity>
 
       {/* 정보 섹션 */}
@@ -80,14 +72,14 @@ const SettingsScreen = () => {
 
       <View style={styles.itemRow}>
         <View style={styles.leftSection}>
-          <Info size={20} />
+          <FontAwesome name="info-circle" size={20} />
           <Text style={styles.itemText}>앱 버전 1.0.0</Text>
         </View>
       </View>
 
       <View style={styles.itemRow}>
         <View style={styles.leftSection}>
-          <User size={20} />
+          <FontAwesome name="user" size={20} />
           <Text style={styles.itemText}>Developer : Sungho Baek</Text>
         </View>
       </View>
@@ -97,18 +89,18 @@ const SettingsScreen = () => {
 
       <TouchableOpacity style={styles.itemRow} onPress={handleFeedbackPress}>
         <View style={styles.leftSection}>
-          <Mail size={20} />
+          <FontAwesome name="envelope" size={20} />
           <Text style={styles.itemText}>피드백 보내기</Text>
         </View>
-        <ChevronRight size={20} />
+        <FontAwesome name="chevron-right" size={20} />
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.itemRow} onPress={handleTermsPress}>
         <View style={styles.leftSection}>
-          <FileText size={20} />
+          <FontAwesome name="file-text-o" size={20} />
           <Text style={styles.itemText}>서비스 이용약관</Text>
         </View>
-        <ChevronRight size={20} />
+        <FontAwesome name="chevron-right" size={20} />
       </TouchableOpacity>
     </ScrollView>
   );

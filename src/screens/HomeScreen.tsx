@@ -13,25 +13,38 @@ import { RootStackParamList } from "../navigation/types";
 import CustomButton from "../components/CustomButton";
 import TipCard from "../components/TipCard";
 import DestinationCard from "../components/DestinationCard";
-import { getQuote } from "../utils/fetchPublicData";
+import { fetchAllCountryData } from "../utils/fetchPublicData";
+import CountryDetailModal from "../components/CountryInfoModal";
 
 type NavigationProp = StackNavigationProp<RootStackParamList, "Home">;
 
 const recommendedDestinations = [
-  { city: "도쿄", country: "일본", flag: "🇯🇵" },
-  { city: "방콕", country: "태국", flag: "🇹🇭" },
-  { city: "파리", country: "프랑스", flag: "🇫🇷" },
-  { city: "뉴욕", country: "미국", flag: "🇺🇸" },
-  { city: "시드니", country: "호주", flag: "🇦🇺" },
-  { city: "로마", country: "이탈리아", flag: "🇮🇹" },
-  { city: "런던", country: "영국", flag: "🇬🇧" },
-  { city: "하노이", country: "베트남", flag: "🇻🇳" },
-  { city: "베를린", country: "독일", flag: "🇩🇪" },
-  { city: "리우", country: "브라질", flag: "🇧🇷" },
+  { city: "도쿄", country: "일본", code: "JP", flag: "🇯🇵" },
+  { city: "방콕", country: "태국", code: "TH", flag: "🇹🇭" },
+  { city: "파리", country: "프랑스", code: "FR", flag: "🇫🇷" },
+  { city: "뉴욕", country: "미국", code: "US", flag: "🇺🇸" },
+  { city: "시드니", country: "호주", code: "AU", flag: "🇦🇺" },
+  { city: "로마", country: "이탈리아", code: "IT", flag: "🇮🇹" },
+  { city: "런던", country: "영국", code: "GB", flag: "🇬🇧" },
+  { city: "하노이", country: "베트남", code: "VN", flag: "🇻🇳" },
+  { city: "베를린", country: "독일", code: "DE", flag: "🇩🇪" },
+  { city: "리우", country: "브라질", code: "BR", flag: "🇧🇷" },
 ];
 
 const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp>();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [detailData, setDetailData] = useState<any>(null);
+
+  const handleDestinationPress = async (country: string, code: string) => {
+    try {
+      const result = await fetchAllCountryData(country, code);
+      setDetailData(result);
+      setModalVisible(true);
+    } catch (err) {
+      console.error("❌ 통합 fetch 실패:", err);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -68,15 +81,13 @@ const HomeScreen = () => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.recommendedScroll}
           >
-            {recommendedDestinations.map(({ city, country, flag }) => (
+            {recommendedDestinations.map(({ city, country, code, flag }) => (
               <DestinationCard
                 key={country}
                 city={city}
                 country={country}
                 flag={flag}
-                onPress={() => {
-                  getQuote();
-                }}
+                onPress={() => handleDestinationPress(country, code)}
               />
             ))}
           </ScrollView>
@@ -84,6 +95,13 @@ const HomeScreen = () => {
 
         <TipCard />
       </ScrollView>
+
+      {/* 모달 컴포넌트 */}
+      <CountryDetailModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        data={detailData}
+      />
     </SafeAreaView>
   );
 };
@@ -130,10 +148,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
