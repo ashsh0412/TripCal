@@ -1,32 +1,28 @@
 {
   "expo": {
-    "name": "PlanIt",
-    "slug": "planit",
-    "platforms": [
-      "ios",
-      "android",
-      "web"
-    ],
+    "name": "TripCal",
+    "slug": "TripCal",
+    "platforms": ["ios", "android", "web"],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ashsh0412.planit"
+      "bundleIdentifier": "com.ashsh0412.tripcal"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.ashsh0412.planit"
+      "package": "com.ashsh0412.tripcal"
     },
     "web": {
       "favicon": "./assets/favicon.png"

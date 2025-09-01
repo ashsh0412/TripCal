@@ -1,4 +1,4 @@
-package com.ashsh0412.planit
+package com.ashsh0412.tripcal
 
 import android.os.Build
 import android.os.Bundle

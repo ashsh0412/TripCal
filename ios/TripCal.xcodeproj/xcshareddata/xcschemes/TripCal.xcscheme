@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "PlanIt.app"
-               BlueprintName = "PlanIt"
-               ReferencedContainer = "container:PlanIt.xcodeproj">
+               BuildableName = "TripCal.app"
+               BlueprintName = "TripCal"
+               ReferencedContainer = "container:TripCal.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "PlanItTests.xctest"
-               BlueprintName = "PlanItTests"
-               ReferencedContainer = "container:PlanIt.xcodeproj">
+               BuildableName = "TripCalTests.xctest"
+               BlueprintName = "TripCalTests"
+               ReferencedContainer = "container:TripCal.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "PlanIt.app"
-            BlueprintName = "PlanIt"
-            ReferencedContainer = "container:PlanIt.xcodeproj">
+            BuildableName = "TripCal.app"
+            BlueprintName = "TripCal"
+            ReferencedContainer = "container:TripCal.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "PlanIt.app"
-            BlueprintName = "PlanIt"
-            ReferencedContainer = "container:PlanIt.xcodeproj">
+            BuildableName = "TripCal.app"
+            BlueprintName = "TripCal"
+            ReferencedContainer = "container:TripCal.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
