@@ -209,7 +209,7 @@ const BudgetPlannerScreen = () => {
           <View style={styles.card}>
             <Text style={styles.cardTitle}>기본 정보</Text>
 
-            <View style={{ width: "100%", marginBottom: 14 }}>
+            <View>
               <LocationSearch
                 onCitySelect={handleCityCountrySelect}
                 initialCity={city}

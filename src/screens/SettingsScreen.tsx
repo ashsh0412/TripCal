@@ -11,8 +11,6 @@ import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
 const termsOfService = `
-[서비스 이용약관]
-
 1. 본 앱은 해외 물가 및 환율 정보를 제공하는 목적의 서비스입니다.
 2. 제공되는 정보는 공신력 있는 외부 데이터를 기반으로 하지만, 정확성을 100% 보장하지 않으며, 참고용으로만 사용해야 합니다.
 3. 사용자의 개인 정보는 수집하지 않으며, 별도의 로그인 없이 앱을 사용할 수 있습니다.

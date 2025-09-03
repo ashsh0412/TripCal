@@ -140,7 +140,7 @@ const LocationSearch = ({
               {
                 top: height * 0.055,
                 left: width * -0.0001,
-                width: width * 0.9,
+                width: "100%",
               },
             ]}
             contentContainerStyle={{ paddingVertical: 10 }}

@@ -15,6 +15,7 @@ import TipCard from "../components/TipCard";
 import DestinationCard from "../components/DestinationCard";
 import { fetchAllCountryData } from "../utils/fetchPublicData";
 import CountryDetailModal from "../components/CountryInfoModal";
+import StackNavigator from "../navigation/StackNavigator";
 
 type NavigationProp = StackNavigationProp<RootStackParamList, "Home">;
 
