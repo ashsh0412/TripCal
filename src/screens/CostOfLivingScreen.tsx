@@ -3,17 +3,13 @@ import {
   View,
   Text,
   StyleSheet,
-  Button,
   ScrollView,
   Keyboard,
-  Dimensions,
+  TouchableOpacity,
 } from "react-native";
 import { fetchPricesByCityCountry } from "../utils/costOfLivingData";
 import { translateItemName } from "../utils/translateItemName";
 import LocationSearch from "../components/LocationSearch";
-
-// 화면 크기 가져오기
-const { width, height } = Dimensions.get("window");
 
 const CostOfLivingScreen = () => {
   const [city, setCity] = useState<string>("");
@@ -56,8 +52,11 @@ const CostOfLivingScreen = () => {
 
       <LocationSearch onCitySelect={handleCityCountrySelect} />
 
-      <Button title="물가 정보 검색 🔎" onPress={handleSearch} />
+      <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+        <Text style={styles.searchButtonText}>물가 정보 검색 🔎</Text>
+      </TouchableOpacity>
 
+      <View style={styles.divider} />
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -117,6 +116,29 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 18,
     color: "#777",
+  },
+  searchButton: {
+    backgroundColor: "#2563eb",
+    paddingVertical: 14,
+    borderRadius: 10,
+    marginTop: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  searchButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "rgba(0,0,0,0.2)", // 블랙 20% 투명
+    marginVertical: 20,
+    borderRadius: 1, // 끝이 살짝 둥근 느낌
   },
 });
 

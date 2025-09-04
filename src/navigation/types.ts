@@ -1,6 +1,10 @@
 export type RootStackParamList = {
+  MainTabs: undefined;
+};
+
+export type MainTabParamList = {
   Home: undefined;
-  ExchangeRate: undefined;
+  CountryInfo: undefined;
   CostOfLiving: undefined;
   BudgetPlanner: undefined;
   Settings: undefined;

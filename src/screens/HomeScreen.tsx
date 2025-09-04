@@ -7,23 +7,21 @@ import {
   ScrollView,
   StatusBar,
 } from "react-native";
-import { StackNavigationProp } from "@react-navigation/stack";
 import { useNavigation } from "@react-navigation/native";
-import { RootStackParamList } from "../navigation/types";
 import CustomButton from "../components/CustomButton";
 import TipCard from "../components/TipCard";
 import DestinationCard from "../components/DestinationCard";
-import { fetchAllCountryData } from "../utils/fetchPublicData";
+import { fetchAllCountryData } from "../utils/fetchCountryInfoData";
 import CountryDetailModal from "../components/CountryInfoModal";
-import StackNavigator from "../navigation/StackNavigator";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { MainTabParamList } from "../navigation/types";
 
-type NavigationProp = StackNavigationProp<RootStackParamList, "Home">;
+type HomeNavProp = BottomTabNavigationProp<MainTabParamList, "Home">;
 
 const recommendedDestinations = [
   { city: "도쿄", country: "일본", code: "JP", flag: "🇯🇵" },
   { city: "방콕", country: "태국", code: "TH", flag: "🇹🇭" },
   { city: "파리", country: "프랑스", code: "FR", flag: "🇫🇷" },
-  { city: "뉴욕", country: "미국", code: "US", flag: "🇺🇸" },
   { city: "시드니", country: "호주", code: "AU", flag: "🇦🇺" },
   { city: "로마", country: "이탈리아", code: "IT", flag: "🇮🇹" },
   { city: "런던", country: "영국", code: "GB", flag: "🇬🇧" },
@@ -33,7 +31,7 @@ const recommendedDestinations = [
 ];
 
 const HomeScreen = () => {
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation<HomeNavProp>();
   const [modalVisible, setModalVisible] = useState(false);
   const [detailData, setDetailData] = useState<any>(null);
 
@@ -57,21 +55,21 @@ const HomeScreen = () => {
         <View style={styles.cardsContainer}>
           <FeatureCard
             title="물가 비교하기"
-            icon="🛏️"
+            icon="🥕"
             description="전세계 도시별 물가 비교"
             onPress={() => navigation.navigate("CostOfLiving")}
           />
           <FeatureCard
             title="예산 계산기"
-            icon="💰"
+            icon="💲"
             description="여행 예산을 쉽게 계획하세요"
             onPress={() => navigation.navigate("BudgetPlanner")}
           />
           <FeatureCard
-            title="설정"
-            icon="⚙️"
-            description="앱 설정 및 기본값 변경"
-            onPress={() => navigation.navigate("Settings")}
+            title="여행지 정보"
+            icon="🌍"
+            description="전 세계 여행지의 최신 안전 및 기본 정보 확인"
+            onPress={() => navigation.navigate("CountryInfo")}
           />
         </View>
 
