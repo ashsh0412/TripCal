@@ -71,7 +71,7 @@ const SettingsScreen = () => {
       <View style={styles.itemRow}>
         <View style={styles.leftSection}>
           <FontAwesome name="info-circle" size={20} />
-          <Text style={styles.itemText}>앱 버전 1.0.1</Text>
+          <Text style={styles.itemText}>앱 버전 1.2.1</Text>
         </View>
       </View>
 
