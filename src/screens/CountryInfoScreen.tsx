@@ -57,9 +57,9 @@ const CountryInfoModal = () => {
 
       setDetailData(result);
       setModalVisible(true);
-      console.log("✅ 통합 fetch 성공:", result);
     } catch (err) {
       console.error("❌ 통합 fetch 실패:", err);
+      setError(err instanceof Error ? err.message : "알 수 없는 오류");
       setError("데이터를 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);

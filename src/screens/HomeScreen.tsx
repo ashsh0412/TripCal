@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-} from "react-native";
+import { View, Text, StyleSheet, ScrollView, StatusBar } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import CustomButton from "../components/CustomButton";
 import TipCard from "../components/TipCard";
@@ -15,6 +8,7 @@ import { fetchAllCountryData } from "../utils/fetchCountryInfoData";
 import CountryDetailModal from "../components/CountryInfoModal";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { MainTabParamList } from "../navigation/types";
+import { SafeAreaView } from "react-native-safe-area-context"; // ✅ 권장 방식
 
 type HomeNavProp = BottomTabNavigationProp<MainTabParamList, "Home">;
 

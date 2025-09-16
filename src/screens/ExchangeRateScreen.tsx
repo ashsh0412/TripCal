@@ -7,12 +7,12 @@ import {
   ActivityIndicator,
   StyleSheet,
   Button,
-  SafeAreaView,
   TextInput,
 } from "react-native";
 import { useExchangeRate } from "../utils/useExchangeRate";
 import Card from "../components/Card";
 import { getCurrencyData } from "../utils/currencyData";
+import { SafeAreaView } from "react-native-safe-area-context"; // ✅ 권장 방식
 
 const ITEMS_PER_PAGE = 10;
 
