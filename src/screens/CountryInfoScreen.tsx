@@ -59,22 +59,7 @@ const CountryInfoModal = () => {
       setModalVisible(true);
     } catch (err) {
       console.error("❌ 통합 fetch 실패:", err);
-      const errorObj = err as any;
-      if (errorObj.response?.data) {
-        if (typeof errorObj.response.data === "string") {
-          setError(errorObj.response.data);
-        } else if (errorObj.response.data.message) {
-          setError(errorObj.response.data.message);
-        } else {
-          setError(JSON.stringify(errorObj.response.data));
-        }
-      }
-      // fetch 사용 시: Error 객체만 있는 경우
-      else if (errorObj.message) {
-        setError(errorObj.message);
-      } else {
-        setError("알 수 없는 서버 오류");
-      }
+      setError("데이터를 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);
       Keyboard.dismiss();
