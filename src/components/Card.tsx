@@ -1,4 +1,3 @@
-// src/components/Card.tsx
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
 import { getCurrencyData } from "../utils/currencyData";

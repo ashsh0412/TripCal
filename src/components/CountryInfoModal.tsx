@@ -6,8 +6,8 @@ import {
   Button,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface CountryDetailModalProps {
   visible: boolean;

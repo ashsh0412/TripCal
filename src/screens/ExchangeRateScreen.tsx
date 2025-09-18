@@ -1,4 +1,3 @@
-// src/screens/ExchangeRateScreen.tsx
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -12,7 +11,7 @@ import {
 import { useExchangeRate } from "../utils/useExchangeRate";
 import Card from "../components/Card";
 import { getCurrencyData } from "../utils/currencyData";
-import { SafeAreaView } from "react-native-safe-area-context"; // ✅ 권장 방식
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ITEMS_PER_PAGE = 10;
 

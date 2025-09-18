@@ -8,7 +8,7 @@ import { fetchAllCountryData } from "../utils/fetchCountryInfoData";
 import CountryDetailModal from "../components/CountryInfoModal";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { MainTabParamList } from "../navigation/types";
-import { SafeAreaView } from "react-native-safe-area-context"; // ✅ 권장 방식
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type HomeNavProp = BottomTabNavigationProp<MainTabParamList, "Home">;
 
